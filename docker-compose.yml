@@ -1,0 +1,39 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: '3.1'
+services:
+    webserver:
+        image: 'nginx:alpine'
+        restart: always
+        networks:
+          local_www:
+        working_dir: /application
+        volumes:
+            - './application:/application'
+            - './storage:/application/public/storage'
+            - './logs:/var/log/nginx'
+            - './phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf'
+        ports:
+            - '27800:80'
+
+    php-fpm:
+        build: phpdocker/php-fpm-ix
+        restart: always
+        networks:
+          local_www:
+        working_dir: /application
+        volumes:
+            - './application:/application'
+            - './cache:/cache'
+            - './storage:/storage'
+            - './phpdocker/php-fpm-ix/php-ini-overrides.ini:/etc/php/7.4/fpm/conf.d/99-overrides.ini'
+
+networks:
+  local_www:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.33.113.0/24
+
